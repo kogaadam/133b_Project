@@ -3,8 +3,10 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation -0.9001228427641855 -0.4108135601190271 -0.1449520153583659 0.7871542493103126
-  position -1.720621192019081 5.192021258156224 5.526249585955451
+  orientation -0.7164207817897079 -0.6681968223241866 -0.20063466813011852 0.8230829312852767
+  position -3.3011941403548106 4.55009738677428 5.703190961221588
+  follow "Mavic 2 PRO:camera yaw:camera pitch:camera roll:camera"
+  followType "None"
 }
 TexturedBackground {
 }
@@ -15,4 +17,5 @@ RectangleArena {
   wallHeight 1
 }
 Mavic2Pro {
+  controller "mavic_orig"
 }
