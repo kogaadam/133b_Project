@@ -1,10 +1,18 @@
 #VRML_SIM R2021a utf8
 WorldInfo {
+  info [
+    ""
+  ]
+  basicTimeStep 8
+  defaultDamping Damping {
+    linear 0.5
+    angular 0.5
+  }
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation -0.7164207817897079 -0.6681968223241866 -0.20063466813011852 0.8230829312852767
-  position -3.3011941403548106 4.55009738677428 5.703190961221588
+  orientation 0.07576088883402853 0.9805201344776332 0.18121962809541953 3.7807068543799405
+  position -2.4840867763126515 1.5836805522824369 -3.1821101454639926
   follow "Mavic 2 PRO:camera yaw:camera pitch:camera roll:camera"
   followType "None"
 }
@@ -15,8 +23,10 @@ TexturedBackgroundLight {
 RectangleArena {
   floorSize 4 4
   floorTileSize 0.25 0.25
-  wallHeight 1
+  wallHeight 0.5
 }
 Mavic2Pro {
-  controller "test_flight"
+  translation 0 0.075 0
+  rotation 0 -0.7071067811865476 -0.7071067811865476 -3.14159
+  controller "mavic_orig"
 }
