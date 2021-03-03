@@ -24,7 +24,6 @@
 /*
  * You may want to add macros here.
  */
-#define TIME_STEP 64
 
 #define SIGN(x) ((x) > 0) - ((x) < 0)
 
@@ -80,14 +79,19 @@ int main(int argc, char **argv) {
   // Constants, empirically found.
   const double k_vert_thrust = 68.5;  // with this thrust, the drone lifts.
   const double k_vert_offset = 0.6;   // Vertical offset where the robot actually targets to stabilize itself.
+  const double x_offset = -.42;
+  const double z_offset = .31;
   const double k_vert_p = 3.0;        // P constant of the vertical PID.
   const double k_roll_p = 50.0;       // P constant of the roll PID.
   const double k_pitch_p = 30.0;      // P constant of the pitch PID.
 
   // Variables.
   double target_altitude = 1.0;  // The target altitude
-  // double target_x = 0.0;
-  // double target_z = 0.0;
+  double target_x = 0.0;
+  double target_z = 0.0;
+  double target_yaw = 0.0;
+  // IF target-current < threshold:
+  //    array index ++
 
   /* main loop
    * Perform simulation steps of TIME_STEP milliseconds
@@ -97,17 +101,24 @@ int main(int argc, char **argv) {
     // Get robot position and other characteristics
     const double roll = wb_inertial_unit_get_roll_pitch_yaw(imu)[0] + M_PI / 2.0;
     const double pitch = wb_inertial_unit_get_roll_pitch_yaw(imu)[1];
-    // const double x_pos = wb_gps_get_values(gps)[0];
+    const double yaw = wb_inertial_unit_get_roll_pitch_yaw(imu)[2];
+    const double x_pos = wb_gps_get_values(gps)[0];
     const double altitude = wb_gps_get_values(gps)[1];
-    // const double z_pos = wb_gps_get_values(gps)[2];
+    const double z_pos = wb_gps_get_values(gps)[2];
     const double roll_acc = wb_gyro_get_values(gyro)[0];
     const double pitch_acc = wb_gyro_get_values(gyro)[1];
 
     // Process sensor data
-    const double roll_change = k_roll_p * CLAMP(roll, -1.0, 1.0) + roll_acc;
-    const double pitch_change = k_pitch_p * CLAMP(pitch, -1.0, 1.0) - pitch_acc;
     const double clamped_diff_alt = CLAMP(target_altitude - altitude + k_vert_offset, -1.0, 1.0);
+    const double clamped_diff_x = CLAMP(target_x + x_pos + x_offset, -1.0, 1.0);
+    const double clamped_diff_z = CLAMP(target_z - z_pos + z_offset, -1.0, 1.0);
+    const double clamped_diff_yaw = CLAMP(target_yaw - yaw, -1.0, 1.0);
     const double vert_change = k_vert_p * pow(clamped_diff_alt, 3.0);
+    const double x_change = 3 * pow(clamped_diff_x, 3.0);
+    const double z_change = 3 * pow(clamped_diff_z, 3.0);
+    const double roll_change = k_roll_p * CLAMP(roll, -1.0, 1.0) + roll_acc + z_change;
+    const double pitch_change = k_pitch_p * CLAMP(pitch, -1.0, 1.0) - pitch_acc + x_change;
+    const double yaw_change = 3 * pow(clamped_diff_yaw, 3.0);
 
     // Actuate the motors
     const double fr_lt_mot_inp = k_vert_thrust + vert_change - roll_change - pitch_change;
