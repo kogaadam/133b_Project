@@ -17,7 +17,9 @@
 #include <webots/inertial_unit.h>
 #include <webots/keyboard.h>
 
+#include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 /*
  * You may want to add macros here.
@@ -66,7 +68,7 @@ int main(int argc, char **argv) {
   int m;
   for (m = 0; m < 4; ++m) {
     wb_motor_set_position(motors[m], INFINITY);
-    wb_motor_set_velocity(motors[m], 500.0);
+    wb_motor_set_velocity(motors[m], 1.0);
   }
 
   // Wait one second.
@@ -113,15 +115,13 @@ int main(int argc, char **argv) {
     const double bk_lt_mot_inp = k_vert_thrust + vert_change - roll_change + pitch_change;
     const double bk_rt_mot_inp = k_vert_thrust + vert_change + roll_change + pitch_change;
 
-    printf("fr_rt_mot_inp:%f\n", fr_rt_mot_inp);
+    printf("roll: %f\n", roll);
     // Set new motor velocities
     wb_motor_set_velocity(fr_lt_mot, fr_lt_mot_inp);
-    wb_motor_set_velocity(fr_rt_mot, fr_rt_mot_inp);
-    wb_motor_set_velocity(bk_lt_mot, bk_lt_mot_inp);
+    wb_motor_set_velocity(fr_rt_mot, -fr_rt_mot_inp);
+    wb_motor_set_velocity(bk_lt_mot, -bk_lt_mot_inp);
     wb_motor_set_velocity(bk_rt_mot, bk_rt_mot_inp);
   };
-
-  /* Enter your cleanup code here */
 
   /* This is necessary to cleanup webots resources */
   wb_robot_cleanup();
