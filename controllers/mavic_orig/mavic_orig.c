@@ -170,10 +170,14 @@ int main(int argc, char **argv) {
     const double vertical_input = k_vertical_p * pow(clamped_difference_altitude, 3.0);
 
     // Actuate the motors taking into consideration all the computed inputs.
-    const double front_left_motor_input = k_vertical_thrust + vertical_input - roll_input - pitch_input + yaw_input;
-    const double front_right_motor_input = k_vertical_thrust + vertical_input + roll_input - pitch_input - yaw_input;
-    const double rear_left_motor_input = k_vertical_thrust + vertical_input - roll_input + pitch_input - yaw_input;
-    const double rear_right_motor_input = k_vertical_thrust + vertical_input + roll_input + pitch_input + yaw_input;
+    const double front_left_motor_input  = k_vertical_thrust + vertical_input -
+                                           roll_input - pitch_input + yaw_input;
+    const double front_right_motor_input = k_vertical_thrust + vertical_input +
+                                           roll_input - pitch_input - yaw_input;
+    const double rear_left_motor_input   = k_vertical_thrust + vertical_input -
+                                           roll_input + pitch_input - yaw_input;
+    const double rear_right_motor_input  = k_vertical_thrust + vertical_input +
+                                           roll_input + pitch_input + yaw_input;
     wb_motor_set_velocity(front_left_motor, front_left_motor_input);
     wb_motor_set_velocity(front_right_motor, -front_right_motor_input);
     wb_motor_set_velocity(rear_left_motor, -rear_left_motor_input);
