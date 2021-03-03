@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
   const double k_vert_thrust = 68.5;  // with this thrust, the drone lifts.
   const double k_vert_offset = 0.6;   // Vertical offset where the robot actually targets to stabilize itself.
   const double x_offset = -.42;
-  const double z_offset = .31;
+  const double z_offset = 0;
   const double k_vert_p = 3.0;        // P constant of the vertical PID.
   const double k_roll_p = 50.0;       // P constant of the roll PID.
   const double k_pitch_p = 30.0;      // P constant of the pitch PID.
@@ -134,12 +134,12 @@ int main(int argc, char **argv) {
 
     // Process sensor data
     const double clamped_diff_alt = CLAMP(target_altitude - altitude + k_vert_offset, -1.0, 1.0);
-    const double clamped_diff_x = CLAMP(target_x + x_pos + x_offset, -1.0, 1.0);
+    const double clamped_diff_x = CLAMP(x_pos - target_x + x_offset, -1.0, 1.0);
     const double clamped_diff_z = CLAMP(target_z - z_pos + z_offset, -1.0, 1.0);
     const double clamped_diff_yaw = CLAMP(target_yaw - yaw, -1.0, 1.0);
     const double vert_change = k_vert_p * pow(clamped_diff_alt, 3.0);
     const double x_change = 2 * pow(clamped_diff_x, 3.0);
-    const double z_change = 2 * pow(clamped_diff_z, 3.0);
+    const double z_change = 2 * pow(clamped_diff_z, 1.0);
     const double roll_change = k_roll_p * CLAMP(roll, -1.0, 1.0) + roll_acc + z_change;
     const double pitch_change = k_pitch_p * CLAMP(pitch, -1.0, 1.0) - pitch_acc + x_change;
     const double yaw_change = 2 * pow(clamped_diff_yaw, 3.0);
