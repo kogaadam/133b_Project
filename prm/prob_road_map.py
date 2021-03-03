@@ -16,70 +16,67 @@ import argparse
 #from planarutils import SegmentCrossTriangle
 #from planarutils import SegmentNearSegment
 
-
-# **************************** MODIFIED START ****************************
 parser = argparse.ArgumentParser()
 parser.add_argument("--N", required=True, help="number of nodes")
 parser.add_argument("--K", required=True, help="K")
 args = parser.parse_args()
-# ***************************** MODIFIED END *****************************
-
-#
-#   General World Definitions
-#
-#   List of objects, start, and goal
-#
-(xmin, xmax) = (0.1, 0.9)
-(ymin, ymax) = (0.1, 0.9)
-(zmin, zmax) = (0.1, 0.9)
-
-(startx, starty, startz) = ( 0.2, 0.2, 0.2)
-(goalx,  goaly, goalz)  = ( 0.5, 0.5, 0.5)
 
 N  = int(args.N)  # Perhaps as low as 20?  I'd probably cap at 2000?
 K  = int(args.K)     # 5-10 for 2D, a little more for 3D?
 K2 = 2*K   # 2K seems to work for me.
 
-
-#
 #   Visualization Tools
 #
 class Visual():
-    def StartFigure():
+    def PlotFourWalls(ax, xmin, xmax, ymin, ymax, zmin, zmax,  *args, **kwargs):
+        x = np.array([[xmin, xmin], [xmin, xmin]])
+        y = np.array([[ymin, ymax], [ymin, ymax]])
+        z = np.array([[zmin, zmin], [zmax, zmax]])
+
+        ax.plot_surface(x, y, z, *args, **kwargs)
+
+        x = np.array([[xmax, xmax], [xmax, xmax]])
+        y = np.array([[ymin, ymax], [ymin, ymax]])
+
+        ax.plot_surface(x, y, z, *args, **kwargs)
+
+        x = np.array([[xmin, xmax], [xmin, xmax]])
+        y = np.array([[ymin, ymin], [ymin, ymin]])
+
+        ax.plot_surface(x, y, z, *args, **kwargs)
+
+        x = np.array([[xmin, xmax], [xmin, xmax]])
+        y = np.array([[ymax, ymax], [ymax, ymax]])
+
+        ax.plot_surface(x, y, z, *args, **kwargs)
+
+    def StartFigure(outside_walls, obstacles):
         # Clear the current, or create a new figure.
         plt.clf()
 
         # Create a new axes, enable the grid, and set axis limits.
         fig = plt.figure(num=1, clear=True)
         ax = fig.add_subplot(1, 1, 1, projection='3d')
-
-        x = np.array([[0, 0], [1, 1]])
-        y = np.array([[0, 0], [0, 0]])
-        z = np.array([[0, 1], [0, 1]])
-
-        ax.plot_surface(x, y, z, alpha=0.5)
-
-        x = np.array([[0, 0], [0, 0]])
-        y = np.array([[0, 0], [1, 1]])
-        z = np.array([[0, 1], [0, 1]])
-
-        ax.plot_surface(x, y, z, alpha=0.5)
-
-        x = np.array([[1, 1], [1, 1]])
-        y = np.array([[0, 1], [0, 1]])
-        z = np.array([[0, 0], [1, 1]])
-
-        ax.plot_surface(x, y, z, alpha=0.5)
-
-        x = np.array([[0, 0], [1, 1]])
-        y = np.array([[1, 1], [1, 1]])
-        z = np.array([[0, 1], [0, 1]])
-
-        ax.plot_surface(x, y, z, alpha=0.5)
         ax.set(xlabel='x', ylabel='y', zlabel='z')
 
-        return ax 
+        ((xmin, xmax), (ymin, ymax), (zmin, zmax)) = outside_walls
+        Visual.PlotFourWalls(ax, xmin, xmax, ymin, ymax, zmin, zmax, alpha=0.5, color="blue")
 
+        plt.xlim(xmin, xmax)
+        plt.ylim(ymin, ymax)
+        ax.set_zlim(zmin, max(xmax,ymax,zmax))
+
+        for obs in obstacles: 
+            ((xmin, xmax), (ymin, ymax), (zmin, zmax)) = (obs.xlim, obs.ylim, obs.zlim)
+            Visual.PlotFourWalls(ax, xmin, xmax, ymin, ymax, zmin, zmax, alpha=1, color="red")
+
+            x = np.array([[xmin, xmin], [xmax, xmax]])
+            y = np.array([[ymin, ymax], [ymin, ymax]])
+            z = np.array([[zmax, zmax], [zmax, zmax]])
+
+            ax.plot_surface(x, y, z, alpha=1, color="red")
+
+        return ax 
 
     def FlushFigure():
         # Show the plot.
@@ -90,19 +87,11 @@ class Visual():
         Visual.FlushFigure()
         #input("Hit return to continue")
 
-
     def DrawState(ax, s, *args, **kwargs):
         ax.scatter3D(s.x, s.y, s.z, *args, **kwargs)
 
     def DrawLocalPath(ax, head, tail, *args, **kwargs):
         ax.plot3D([head.x, tail.x], [head.y, tail.y], [head.z, tail.z], *args, **kwargs)
-
-
-#
-#   Object State
-#
-def AngleDiff(t1, t2):
-    return (t1-t2) - math.pi * round((t1-t2)/math.pi)
 
 class State:
     def __init__(self, x, y, z):
@@ -121,10 +110,13 @@ class State:
                      self.y + alpha * (other.y-self.y), 
                      self.z + alpha * (other.z-self.z))
 
-# **************************** MODIFIED START ****************************
     #### These are necessary for the PRM:
     # Check whether in free space.
     def InFreespace(self):
+        for obs in obstacles: 
+            if obs.InObstacle(0.2, (self.x,self.y,self.z)):
+                return False
+
         return True
 
     # Compute the relative distance to another state.    
@@ -133,8 +125,32 @@ class State:
 
     # Check the local planner - whether this connects to another state.
     def ConnectsTo(self, other):
+        alphas = np.linspace(0, 1, num=100)
+
+        for alpha in alphas:
+            state = self.Intermediate(other, alpha) 
+            if (not state.InFreespace()):
+                return False 
+
         return True
-# ***************************** MODIFIED END *****************************
+
+class Obstacle: 
+    def __init__(self, xlim, ylim, zlim):
+
+        self.xlim = xlim
+        self.ylim = ylim
+        self.zlim = zlim
+
+    def InObstacle(self, d, p):
+        px = p[0]
+        py = p[1]
+        pz = p[2]
+
+        xbound = px > (self.xlim[0]-d) and px < (self.xlim[1]+d)
+        ybound = py > (self.ylim[0]-d) and py < (self.ylim[1]+d)
+        zbound = pz > (self.zlim[0]-d) and pz < (self.zlim[1]+d)
+
+        return xbound and ybound and zbound 
 
 #
 #   PRM Graph and A* Search Tree
@@ -162,7 +178,6 @@ class Node(State):
     # Estimate the cost to go to another node, for use in A*.
     def CostToGoEst(self, other):
         return self.Distance(other)
-
 
 #
 #   A* Planning Algorithm
@@ -236,7 +251,6 @@ def AStar(nodeList, start, goal):
     # Return the path.
     return path
 
-# **************************** MODIFIED START ****************************
 #
 #   Select the Nodes
 #
@@ -252,8 +266,6 @@ def AddNodesToList(nodeList, N):
         if node.InFreespace():
             nodeList.append(node)
             N -= 1 
-# ***************************** MODIFIED END *****************************
-
 #
 #   Brute-Force Nearest Neighbor
 #
@@ -272,7 +284,6 @@ def NearestNodes(node, nodeList, K):
     return [n for _,n in list]
 
 
-# **************************** MODIFIED START ****************************
 def ConnectNearestNeighbors(nodeList, K):
     # Clear any and all existing neighbors.
     for node in nodeList:
@@ -294,7 +305,6 @@ def ConnectNearestNeighbors(nodeList, K):
 
             if count == 0:
                 break;
-# ***************************** MODIFIED END *****************************
 
 #
 #  Post Process the Path
@@ -307,13 +317,32 @@ def PostProcess(path):
         else:
             i = i+1
 
+#
+#   General World Definitions
+#
+#   List of objects, start, and goal
+
+outside_walls = ((0, 4), (0, 4), (0, 2))
+
+(xmin, xmax) = (0.2, 3.8)
+(ymin, ymax) = (0.2, 3.8)
+(zmin, zmax) = (0, 2.0)
+
+(startx, starty, startz) = (1.0, 0.5, 0.5)
+(goalx,  goaly, goalz)  = (3.0, 3.5, 0.5)
+
+obstacles = []
+obs1 = Obstacle((1.5, 2.0), (1.5, 2.0), (0, 2))
+#obs2 = Obstacle((1.0, 3.0), (2.5, 3.0), (0, 1))
+obstacles.append(obs1)
+#obstacles.append(obs2)
 
 #
 #  Main Code
 #
 def main():
-    # Create the figure.
-    ax = Visual.StartFigure()
+    # Create the figuree
+    ax = Visual.StartFigure(outside_walls, obstacles)
     Visual.FlushFigure()
     input("Test")
 
@@ -325,8 +354,6 @@ def main():
     Visual.DrawState(ax, startnode, 'ro')
     Visual.DrawState(ax, goalnode,  'ro')
     Visual.ShowFigure()
-
-
 
     # Create the list of sample points.
     nodeList = []
@@ -366,6 +393,11 @@ def main():
 
     # Post Process the path.
     PostProcess(path)
+
+    waypoints = []
+    for node in path: 
+        waypoints.append((node.x, node.y, node.z))
+    print(waypoints)
 
     # Show the post-processed path.
     for i in range(len(path)-1):
