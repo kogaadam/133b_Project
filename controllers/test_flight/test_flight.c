@@ -85,10 +85,19 @@ int main(int argc, char **argv) {
   const double k_roll_p = 50.0;       // P constant of the roll PID.
   const double k_pitch_p = 30.0;      // P constant of the pitch PID.
 
-  // Variables.
-  double target_altitude = 1.0;  // The target altitude
-  double target_x = 0.0;
-  double target_z = 0.0;
+  // Temp array of destination nodes
+  double nodes[3][3] = {{0,  1,   0}, 
+                        {1,  0.5, 1}, 
+                        {-1, 1.5, 1}};
+  // array index for desired node
+  int node_index = 0;
+  // Threshold for converging to node position [m]
+  const double thresh = 0.1;
+
+  // Initialize Target Variables.
+  double target_altitude = nodes[0][1];  // The target altitude
+  double target_x = nodes[0][0];
+  double target_z = nodes[0][2];
   double target_yaw = 0.0;
   // IF target-current < threshold:
   //    array index ++
@@ -107,6 +116,21 @@ int main(int argc, char **argv) {
     const double z_pos = wb_gps_get_values(gps)[2];
     const double roll_acc = wb_gyro_get_values(gyro)[0];
     const double pitch_acc = wb_gyro_get_values(gyro)[1];
+    
+    double alt_error = fabs(target_altitude - altitude);
+    double x_error = fabs(target_x - x_pos);
+    double z_error = fabs(target_z - z_pos);
+    
+    //printf("Altitude: %f | X: %f | Z: %f\n", altitude, x_pos, z_pos);
+    printf("Altitude Error: %f | X Error: %f | Z Error: %f | Node Index: %d\n", alt_error, x_error, z_error, node_index);
+    
+    // Checks to see if positions are within target threshold then updates to next node.
+    if (node_index < 3 && fabs(target_altitude - altitude)<thresh && fabs(target_x - x_pos)<thresh && fabs(target_z - z_pos)<thresh) {
+      node_index++;
+      target_altitude = nodes[node_index][1];
+      target_x = nodes[node_index][0];
+      target_z = nodes[node_index][2];
+    }
 
     // Process sensor data
     const double clamped_diff_alt = CLAMP(target_altitude - altitude + k_vert_offset, -1.0, 1.0);
@@ -114,11 +138,11 @@ int main(int argc, char **argv) {
     const double clamped_diff_z = CLAMP(target_z - z_pos + z_offset, -1.0, 1.0);
     const double clamped_diff_yaw = CLAMP(target_yaw - yaw, -1.0, 1.0);
     const double vert_change = k_vert_p * pow(clamped_diff_alt, 3.0);
-    const double x_change = 3 * pow(clamped_diff_x, 3.0);
-    const double z_change = 3 * pow(clamped_diff_z, 3.0);
+    const double x_change = 2 * pow(clamped_diff_x, 3.0);
+    const double z_change = 2 * pow(clamped_diff_z, 3.0);
     const double roll_change = k_roll_p * CLAMP(roll, -1.0, 1.0) + roll_acc + z_change;
     const double pitch_change = k_pitch_p * CLAMP(pitch, -1.0, 1.0) - pitch_acc + x_change;
-    const double yaw_change = 3 * pow(clamped_diff_yaw, 3.0);
+    const double yaw_change = 2 * pow(clamped_diff_yaw, 3.0);
 
     // Actuate the motors
     const double fr_lt_mot_inp = k_vert_thrust + vert_change - roll_change - pitch_change;
