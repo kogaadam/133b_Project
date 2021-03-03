@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
    * Perform simulation steps of TIME_STEP milliseconds
    * and leave the loop when the simulation is over
    */
-  while (wb_robot_step(TIME_STEP) != -1) {
+  while (wb_robot_step(timestep) != -1) {
     // Get robot position and other characteristics
     const double roll = wb_inertial_unit_get_roll_pitch_yaw(imu)[0] + M_PI / 2.0;
     const double pitch = wb_inertial_unit_get_roll_pitch_yaw(imu)[1];
@@ -115,7 +115,6 @@ int main(int argc, char **argv) {
     const double bk_lt_mot_inp = k_vert_thrust + vert_change - roll_change + pitch_change;
     const double bk_rt_mot_inp = k_vert_thrust + vert_change + roll_change + pitch_change;
 
-    printf("roll: %f\n", roll);
     // Set new motor velocities
     wb_motor_set_velocity(fr_lt_mot, fr_lt_mot_inp);
     wb_motor_set_velocity(fr_rt_mot, -fr_rt_mot_inp);
