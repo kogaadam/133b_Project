@@ -68,13 +68,13 @@ class Visual():
 
         for obs in obstacles: 
             ((xmin, xmax), (ymin, ymax), (zmin, zmax)) = (obs.xlim, obs.ylim, obs.zlim)
-            Visual.PlotFourWalls(ax, xmin, xmax, ymin, ymax, zmin, zmax, alpha=1, color="red")
+            Visual.PlotFourWalls(ax, xmin, xmax, ymin, ymax, zmin, zmax, alpha=0.9, color="green")
 
             x = np.array([[xmin, xmin], [xmax, xmax]])
             y = np.array([[ymin, ymax], [ymin, ymax]])
             z = np.array([[zmax, zmax], [zmax, zmax]])
 
-            ax.plot_surface(x, y, z, alpha=1, color="red")
+            ax.plot_surface(x, y, z, alpha=0.9, color="green")
 
         return ax 
 
@@ -92,6 +92,12 @@ class Visual():
 
     def DrawLocalPath(ax, head, tail, *args, **kwargs):
         ax.plot3D([head.x, tail.x], [head.y, tail.y], [head.z, tail.z], *args, **kwargs)
+
+    def DrawWaypointState(ax, p, *args, **kwargs):
+        ax.scatter3D(p[0], p[1], p[2], *args, **kwargs)
+
+    def DrawLocalWaypointPath(ax, head, tail, *args, **kwargs):
+        ax.plot3D([head[0], tail[0]], [head[1], tail[1]], [head[2], tail[2]], *args, **kwargs)
 
 class State:
     def __init__(self, x, y, z):
@@ -309,13 +315,67 @@ def ConnectNearestNeighbors(nodeList, K):
 #
 #  Post Process the Path
 #
-def PostProcess(path):
+def Simplify(path):
     i = 0
     while (i < len(path)-2):
         if path[i].ConnectsTo(path[i+2]):
             path.pop(i+1)
         else:
             i = i+1
+
+def distance(p_i, p_f): 
+    return np.sqrt((p_i[0] - p_f[0])**2 + (p_i[1] - p_f[1])**2 + (p_i[2] - p_f[2])**2)
+
+def find_midpoint(p_i, p_f): 
+    return ((p_i[0] + p_f[0])/2, (p_i[1] + p_f[1])/2, (p_i[2] + p_f[2])/2)
+
+#
+#   Interpolate points on the path 
+#
+def Interpolate(waypoints, d):
+    new_waypoints = []
+    
+    i = 0 
+    while (i < len(waypoints)-1):
+        curr_p = waypoints[i]
+        next_p = waypoints[i+1]
+
+        segment_length = distance(curr_p, next_p)
+        num_points = segment_length/d
+
+        delta_x = (next_p[0]-curr_p[0])/num_points
+        delta_y = (next_p[1]-curr_p[1])/num_points
+        delta_z = (next_p[2]-curr_p[2])/num_points
+
+        for j in range(round(num_points)):
+            new_waypoints.append((curr_p[0] + j*delta_x, curr_p[1] + j*delta_y, curr_p[2] + j*delta_z))
+
+        i += 1
+
+    new_waypoints.append(waypoints[-1])
+
+    return new_waypoints
+
+#
+#   Smooth 
+#
+def Smooth(waypoints, d):
+    new_waypoints = []
+    new_waypoints.append(waypoints[0])
+    
+    i = 0 
+    while (i < len(waypoints)-d):
+        curr_p = waypoints[i]
+        next_p = waypoints[i+d]
+
+        new_waypoints.append(find_midpoint(curr_p, next_p))
+
+        i += 1
+
+    new_waypoints.append(waypoints[-1])
+
+    return new_waypoints
+
 
 #
 #   General World Definitions
@@ -333,9 +393,9 @@ outside_walls = ((0, 4), (0, 4), (0, 2))
 
 obstacles = []
 obs1 = Obstacle((1.5, 2.0), (1.5, 2.0), (0, 2))
-#obs2 = Obstacle((1.0, 3.0), (2.5, 3.0), (0, 1))
+obs2 = Obstacle((1.0, 3.0), (2.5, 3.0), (0, 1))
 obstacles.append(obs1)
-#obstacles.append(obs2)
+obstacles.append(obs2)
 
 #
 #  Main Code
@@ -351,18 +411,18 @@ def main():
     goalnode  = Node(goalx,  goaly, goalz)
 
     # Show the start/goal states.
-    Visual.DrawState(ax, startnode, 'ro')
-    Visual.DrawState(ax, goalnode,  'ro')
-    Visual.ShowFigure()
+    #Visual.DrawState(ax, startnode, 'ro')
+    #Visual.DrawState(ax, goalnode,  'ro')
+    #Visual.ShowFigure()
 
     # Create the list of sample points.
     nodeList = []
     AddNodesToList(nodeList, N)
 
     # Show the sample states.
-    for node in nodeList:
-        Visual.DrawState(ax, node, 'kx')
-    Visual.ShowFigure()
+    #for node in nodeList:
+    #    Visual.DrawState(ax, node, 'kx')
+    #Visual.ShowFigure()
 
     # Add the start/goal nodes.
     nodeList.append(startnode)
@@ -372,36 +432,52 @@ def main():
     ConnectNearestNeighbors(nodeList, K)
 
     # Show the neighbor connections.
-    for node in nodeList:
-        for neighbor in node.neighbors:
-            Visual.DrawLocalPath(ax, node, neighbor, 'g-', linewidth=0.5)
-    Visual.ShowFigure()
+    #for node in nodeList:
+    #    for neighbor in node.neighbors:
+    #        Visual.DrawLocalPath(ax, node, neighbor, 'g-', linewidth=0.2)
+    #Visual.ShowFigure()
 
 
     # Run the A* planner.
-    path = AStar(nodeList, startnode, goalnode)
+    path = AStar( nodeList, startnode, goalnode)
     if not path:
         print("UNABLE TO FIND A PATH")
         input("Hit return to continue")
         return 
 
     # Show the path.
-    for i in range(len(path)-1):
-        Visual.DrawLocalPath(ax, path[i], path[i+1], 'r-', linewidth=1)
-    Visual.FlushFigure()
-
+    #for i in range(len(path)-1):
+    #    Visual.DrawLocalPath(ax, path[i], path[i+1], 'r-', linewidth=1)
+    #Visual.FlushFigure()
 
     # Post Process the path.
-    PostProcess(path)
+    Simplify(path)
 
     waypoints = []
     for node in path: 
-        waypoints.append((node.x, node.y, node.z))
-    print(waypoints)
+        p = (node.x, node.y, node.z)
+        waypoints.append(p)
+        Visual.DrawWaypointState(ax, p, 'ro', s=4)
+    Visual.ShowFigure()
 
     # Show the post-processed path.
-    for i in range(len(path)-1):
-        Visual.DrawLocalPath(ax, path[i], path[i+1], 'b-', linewidth=2)
+    for i in range(len(waypoints)-1):
+        Visual.DrawLocalWaypointPath(ax, waypoints[i], waypoints[i+1], 'b-', linewidth=0.8)
+    Visual.ShowFigure()
+    input("Hit return to continue")
+
+    # Add more points along path
+    waypoints = Interpolate(waypoints, 0.25)
+    waypoints = Smooth(waypoints, 5)
+    waypoints = Interpolate(waypoints, 0.1)
+    waypoints = Smooth(waypoints, 6)
+    waypoints = Interpolate(waypoints, 0.1)
+
+    # Show the post-processed path.
+    for i in range(len(waypoints)-1):
+        Visual.DrawWaypointState(ax, waypoints[i], 'r.', s=2)
+        Visual.DrawLocalWaypointPath(ax, waypoints[i], waypoints[i+1], 'r-', linewidth=2)
+    Visual.DrawWaypointState(ax, waypoints[-1], 'r.', s=2)
     Visual.ShowFigure()
     input("Hit return to continue")
 
