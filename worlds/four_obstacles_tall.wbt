@@ -1,0 +1,75 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  info [
+    ""
+  ]
+  basicTimeStep 8
+  defaultDamping Damping {
+    linear 0.5
+    angular 0.5
+  }
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation 0.6626183476732966 -0.6856399623385169 -0.30138806773186533 5.1117290760613106
+  position 2.0487412583266766 8.513463137488012 3.791342862171007
+  follow "Mavic 2 PRO:camera yaw:camera pitch:camera roll:camera"
+  followType "None"
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 4 8
+  floorTileSize 4 4
+  floorAppearance Parquetry {
+    colorOverride 0.8 0.8 0.8
+  }
+  wallHeight 2
+  wallAppearance BrushedAluminium {
+    colorOverride 0 1 1
+  }
+}
+WoodenBox {
+  translation -0.75 1 0.75
+  rotation 0 0 1 4.692820414042842e-06
+  size 2.5 2 0.5
+}
+WoodenBox {
+  translation 0.75 1 2.25
+  name "wooden box(2)"
+  size 2.5 2 0.5
+}
+WoodenBox {
+  translation 0.75 1 -0.75
+  name "wooden box(1)"
+  size 2.5 2 0.5
+}
+WoodenBox {
+  translation -0.75 1 -2.25
+  name "wooden box(3)"
+  size 2.5 2 0.5
+}
+Mavic2Pro {
+  hidden position_0_0 2.4586303562620413e-09
+  hidden linearVelocity_0 6.782677383841354e-07 -3.6060905358204755e-13 1.344773592230144e-06
+  hidden angularVelocity_0 4.5407955866582166e-12 6.727527641962657e-06 -1.6314871833191787e-12
+  hidden translation_6 0.0412774 -0.00469654 -0.00405862
+  hidden rotation_6 0 0 1 0
+  hidden position_6_0 -2.439544353695605e-11
+  hidden linearVelocity_6 5.65215819004992e-07 -4.4530711922088786e-13 4.982418145463476e-07
+  hidden angularVelocity_6 5.065642014431786e-11 6.716014136591682e-06 3.9154460849495494e-10
+  hidden translation_7 0.000625212 -0.00530346 -0.0207448
+  hidden rotation_7 0 1 0 0
+  hidden position_7_0 -1.2536760719558709e-11
+  hidden linearVelocity_7 6.01910883054568e-07 4.1943668138183724e-11 5.079512868459707e-07
+  hidden angularVelocity_7 -1.2991203770344994e-09 6.715415416427979e-06 -1.698258687086369e-08
+  hidden translation_8 0.00754686 0.0160388 -0.00586401
+  hidden rotation_8 1 0 0 0
+  hidden linearVelocity_8 6.549507265161303e-07 2.6591242018389277e-11 4.979721740064665e-07
+  hidden angularVelocity_8 -1.3276660988409499e-08 6.715399225185773e-06 -1.6051474628428482e-08
+  translation 0.3146071038272808 0.01681528385825591 3.1304395561080764
+  rotation -0.9984434989843685 -0.040775271270880216 0.03805202476396641 -1.5380620817177437
+  controller "test_flight"
+}

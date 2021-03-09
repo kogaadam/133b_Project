@@ -1,0 +1,82 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  info [
+    ""
+  ]
+  basicTimeStep 8
+  defaultDamping Damping {
+    linear 0.5
+    angular 0.5
+  }
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation 0.7263441788230116 -0.5920246805896159 -0.3491860699722834 4.919112762742656
+  position 7.484772065406268 15.74949998282568 4.865029860076035
+  follow "Mavic 2 PRO:camera yaw:camera pitch:camera roll:camera"
+  followType "None"
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 4 7
+  floorTileSize 4 4
+  floorAppearance Parquetry {
+    colorOverride 0.8 0.8 0.8
+  }
+  wallHeight 2
+  wallAppearance BrushedAluminium {
+    colorOverride 0 1 1
+    IBLStrength 10
+  }
+}
+WoodenBox {
+  translation 0 1.75 0
+  rotation 0 0 1 4.692820414042842e-06
+  name "wooden box(1)"
+  size 3 0.5 0.5
+}
+WoodenBox {
+  translation 1.75 1 0
+  rotation 0 0 1 -1.5707953071795862
+  name "wooden box(6)"
+  size 2 0.5 0.5
+}
+WoodenBox {
+  translation -1.75 1 0
+  rotation 0 0 1 -1.5707953071795862
+  name "wooden box(7)"
+  size 2 0.5 0.5
+}
+WoodenBox {
+  translation -1 0.5 -1.75
+  name "wooden box(5)"
+  size 2 1 0.5
+}
+WoodenBox {
+  translation 1 0.5 -1.75
+  name "wooden box(4)"
+  size 2 1 0.5
+}
+WoodenBox {
+  translation -1 1.5 1.75
+  name "wooden box(3)"
+  size 2 1 0.5
+}
+WoodenBox {
+  translation 0 0.25 0
+  rotation 0 0 1 4.692820414042842e-06
+  size 3 0.5 0.5
+}
+WoodenBox {
+  translation 1 1.5 1.75
+  name "wooden box(2)"
+  size 2 1 0.5
+}
+Mavic2Pro {
+  translation 0.9527914090302672 0.06571422768635658 3.42782816779504
+  rotation -0.03914066259537918 0.7043373590701844 0.7087855057417815 2.9651958209577876
+  controller "test_flight"
+}

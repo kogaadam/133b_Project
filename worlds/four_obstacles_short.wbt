@@ -1,0 +1,69 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  info [
+    ""
+  ]
+  basicTimeStep 8
+  defaultDamping Damping {
+    linear 0.5
+    angular 0.5
+  }
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation 0.7449196720074975 -0.5757018222943455 -0.3371380934620293 4.950718526666917
+  position 6.672000906057149 22.67942746630015 9.962061931677615
+  follow "Mavic 2 PRO:camera yaw:camera pitch:camera roll:camera"
+  followType "None"
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 4 8
+  floorTileSize 4 4
+  floorAppearance Parquetry {
+    colorOverride 0.8 0.8 0.8
+  }
+  wallHeight 2
+  wallAppearance BrushedAluminium {
+    colorOverride 0 1 1
+  }
+}
+WoodenBox {
+  translation -0.75 0.25 0.75
+  rotation 0 0 1 4.692820414042842e-06
+  size 2.5 0.5 0.5
+}
+WoodenBox {
+  translation 0.75 1 2.25
+  name "wooden box(2)"
+  size 2.5 2 0.5
+}
+WoodenBox {
+  translation 0.75 0.5 -0.75
+  name "wooden box(1)"
+  size 2.5 1 0.5
+}
+WoodenBox {
+  translation -0.75 1 -2.25
+  name "wooden box(3)"
+  size 2.5 2 0.5
+}
+Mavic2Pro {
+  hidden position_0_0 1.3362406682896128e-09
+  hidden linearVelocity_0 -5.838521274602488e-07 1.6407709450367245e-05 -1.1554277010592674e-07
+  hidden angularVelocity_0 -6.9038450178835545e-06 -1.2037915582928314e-07 3.389600860218633e-05
+  hidden position_6_0 -3.111072288675132e-09
+  hidden linearVelocity_6 -1.6005670192498689e-06 1.2081408950123507e-05 -3.3798969221369923e-07
+  hidden angularVelocity_6 -6.904600467664728e-06 -1.3137420054379135e-07 3.3895870842750044e-05
+  hidden position_7_0 1.18416522991661e-09
+  hidden linearVelocity_7 -1.4330428998160571e-06 1.2137869440478698e-05 -3.036456756972348e-07
+  hidden angularVelocity_7 -6.907981407710815e-06 -1.3137426959344157e-07 3.391444420069118e-05
+  hidden linearVelocity_8 -1.1422909946169508e-06 1.2092536037570463e-05 -2.4458662287334526e-07
+  hidden angularVelocity_8 -6.919554456222831e-06 -1.305527068705098e-07 3.391233753042216e-05
+  translation 0.9527914090302672 0.06571422768635658 3.42782816779504
+  rotation -0.03914066259537918 0.7043373590701844 0.7087855057417815 2.9651958209577876
+  controller "test_flight"
+}
