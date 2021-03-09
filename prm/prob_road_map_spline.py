@@ -8,9 +8,11 @@ import bisect
 import math
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
+from scipy import interpolate
 import numpy as np
 import random
 import argparse
+import struct 
 
 #from planarutils import PointInTriangle
 #from planarutils import SegmentCrossTriangle
@@ -120,7 +122,7 @@ class State:
     # Check whether in free space.
     def InFreespace(self):
         for obs in obstacles: 
-            if obs.InObstacle(0.4, (self.x,self.y,self.z)):
+            if obs.InObstacle(0.5, (self.x,self.y,self.z)):
                 return False
 
         return True
@@ -332,13 +334,13 @@ def find_midpoint(p_i, p_f):
 #
 #   Interpolate points on the path 
 #
-def Interpolate(waypoints, d):
+def Interpolate(x_fine, y_fine, z_fine, d):
     new_waypoints = []
     
     i = 0 
-    while (i < len(waypoints)-1):
-        curr_p = waypoints[i]
-        next_p = waypoints[i+1]
+    while (i < len(x_fine)-1):
+        curr_p = (x_fine[i], y_fine[i], z_fine[i])
+        next_p = (x_fine[i+1], y_fine[i+1], z_fine[i+1])
 
         segment_length = distance(curr_p, next_p)
         num_points = segment_length/d
@@ -356,26 +358,10 @@ def Interpolate(waypoints, d):
 
     return new_waypoints
 
-#
-#   Smooth 
-#
-def Smooth(waypoints, d):
-    new_waypoints = []
-    new_waypoints.append(waypoints[0])
-    
-    i = 0 
-    while (i < len(waypoints)-d):
-        curr_p = waypoints[i]
-        next_p = waypoints[i+d]
-
-        new_waypoints.append(find_midpoint(curr_p, next_p))
-
-        i += 1
-
-    new_waypoints.append(waypoints[-1])
-
-    return new_waypoints
-
+def write_to_file(data):
+    file = open("path.bin","wb")
+    s = struct.pack('d'*len(data),*data)
+    file.write(s)
 
 #
 #   General World Definitions
@@ -389,7 +375,7 @@ outside_walls = ((-2, 2), (-2, 2), (0, 0.5))
 (zmin, zmax) = (0, 1)
 
 (startx, starty, startz) = (-1.5, -1.5, 0.075)
-(goalx,  goaly, goalz)  = (1.5, 1.5, 0.5)
+(goalx,  goaly, goalz)  = (1.25, 1.25, 0.5)
 
 obstacles = []
 #obs1 = Obstacle((-0.5, 0.0), (-0.5, 0.0), (0, 0.5))
@@ -413,19 +399,9 @@ def main():
     startnode = Node(startx, starty, startz)
     goalnode  = Node(goalx,  goaly, goalz)
 
-    # Show the start/goal states.
-    #Visual.DrawState(ax, startnode, 'ro')
-    #Visual.DrawState(ax, goalnode,  'ro')
-    #Visual.ShowFigure()
-
     # Create the list of sample points.
     nodeList = []
     AddNodesToList(nodeList, N)
-
-    # Show the sample states.
-    #for node in nodeList:
-    #    Visual.DrawState(ax, node, 'kx')
-    #Visual.ShowFigure()
 
     # Add the start/goal nodes.
     nodeList.append(startnode)
@@ -434,13 +410,6 @@ def main():
     # Connect to the nearest neighbors.
     ConnectNearestNeighbors(nodeList, K)
 
-    # Show the neighbor connections.
-    #for node in nodeList:
-    #    for neighbor in node.neighbors:
-    #        Visual.DrawLocalPath(ax, node, neighbor, 'g-', linewidth=0.2)
-    #Visual.ShowFigure()
-
-
     # Run the A* planner.
     path = AStar( nodeList, startnode, goalnode)
     if not path:
@@ -448,13 +417,8 @@ def main():
         input("Hit return to continue")
         return 
 
-    # Show the path.
-    #for i in range(len(path)-1):
-    #    Visual.DrawLocalPath(ax, path[i], path[i+1], 'r-', linewidth=1)
-    #Visual.FlushFigure()
-
     # Post Process the path.
-    #Simplify(path)
+    Simplify(path)
 
     waypoints = []
     for node in path: 
@@ -462,7 +426,7 @@ def main():
         waypoints.append(p)
         Visual.DrawWaypointState(ax, p, 'ro', s=4)
     Visual.ShowFigure()
-    print(waypoints)
+    #print(waypoints)
 
     # Show the post-processed path.
     for i in range(len(waypoints)-1):
@@ -470,24 +434,34 @@ def main():
     Visual.ShowFigure()
     input("Hit return to continue")
 
-    # Add more points along path
-    waypoints = Interpolate(waypoints, 0.25)
-    waypoints = Smooth(waypoints, 5)
-    waypoints = Interpolate(waypoints, 0.1)
+    x_sample = [x[0] for x in waypoints]
+    y_sample = [x[1] for x in waypoints]
+    z_sample = [x[2] for x in waypoints]
+    print("SAMPLE")
 
+    tck, u = interpolate.splprep([x_sample,y_sample,z_sample], s=2)
+    x_knots, y_knots, z_knots = interpolate.splev(tck[0], tck)
+    u_fine = np.linspace(0,1,1000)
+    x_fine, y_fine, z_fine = interpolate.splev(u_fine, tck)
 
-    # Show the post-processed path.
-    for i in range(len(waypoints)-1):
-        Visual.DrawWaypointState(ax, waypoints[i], 'r.', s=2)
-        Visual.DrawLocalWaypointPath(ax, waypoints[i], waypoints[i+1], 'r-', linewidth=2)
-    Visual.DrawWaypointState(ax, waypoints[-1], 'r.', s=2)
-    Visual.ShowFigure()
+    ax.scatter3D(x_fine, y_fine, z_fine, 'g', linewidth=0.5)
+    plt.show()
+    input("Hit return to continue")
 
-    print(len(waypoints))
+    data = []
+    length = len(x_fine)
+    for i in range(length):
+        data.append(x_fine[i])
+        data.append(y_fine[i])
+        data.append(z_fine[i])
+
+    write_to_file(data)
+
+    print(len(x_fine))
     print('{',end='')
-    for waypoint in waypoints: 
+    for i in range(len(x_fine)): 
         print('{',end='')
-        print("{},{},{}".format(waypoint[0], waypoint[2], waypoint[1]),end='')
+        print("{},{},{}".format(x_fine[i], z_fine[i], y_fine[i]),end='')
         print('},')
     input("Hit return to continue")
 
