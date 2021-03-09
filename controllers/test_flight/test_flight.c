@@ -20,6 +20,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 /*
  * You may want to add macros here.
@@ -51,12 +52,15 @@ struct datapoints {
 int main(int argc, char **argv) {
 
   // run executable
-  int r = system("C:\\School\\_SR\\_WI\\133b\\133b_Project\\prm\\t.exe ptest write_to_file 6 7");
-  printf("return: %d", r);
+  int r = system("C:\\School\\_SR\\_WI\\133b\\133b_Project\\prm\\t.exe \
+                  prob_road_map_spline main");
+  printf("return: %d\n", r);
+
+  sleep(1);
 
   // read from file
   FILE *fptr;
-  const int data_len = 100;
+  const int data_len = 1000;
   struct datapoints dps;
 
   if ((fptr = fopen("C:\\School\\_SR\\_WI\\133b\\133b_Project\\prm\\path.bin", "rb")) == NULL) {
@@ -64,9 +68,15 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
+  // Temp array of destination nodes
+  double nodes[1000][3];
+
   for(int i = 0; i < data_len; i++) {
     fread(&dps, sizeof(struct datapoints), 1, fptr);
-    printf("[%f, %f, %f]", dps.dp1, dps.dp2, dps.dp3);
+    nodes[i][0] = dps.dp1;
+    nodes[i][1] = dps.dp3;
+    nodes[i][2] = dps.dp2;
+    // printf("[%f, %f, %f]\n", dps.dp1, dps.dp2, dps.dp3);
   }
   fclose(fptr);
 
@@ -111,10 +121,6 @@ int main(int argc, char **argv) {
   const double k_roll_p = 50.0;       // P constant of the roll PID.
   const double k_pitch_p = 30.0;      // P constant of the pitch PID.
 
-  // Temp array of destination nodes
-  double nodes[3][3] = {{0,  1,   0}, 
-                        {1,  0.5, 1}, 
-                        {-1, 1.5, 1}};
   // array index for desired node
   int node_index = 0;
   // Threshold for converging to node position [m]

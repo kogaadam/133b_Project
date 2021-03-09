@@ -12,19 +12,22 @@ from scipy import interpolate
 import numpy as np
 import random
 import argparse
-import struct 
+import struct
+import time
 
 #from planarutils import PointInTriangle
 #from planarutils import SegmentCrossTriangle
 #from planarutils import SegmentNearSegment
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--N", required=True, help="number of nodes")
-parser.add_argument("--K", required=True, help="K")
-args = parser.parse_args()
+# parser = argparse.ArgumentParser()
+# parser.add_argument("--N", required=True, help="number of nodes")
+# parser.add_argument("--K", required=True, help="K")
+# args = parser.parse_args()
 
-N  = int(args.N)  # Perhaps as low as 20?  I'd probably cap at 2000?
-K  = int(args.K)     # 5-10 for 2D, a little more for 3D?
+# N  = int(args.N)  # Perhaps as low as 20?  I'd probably cap at 2000?
+# K  = int(args.K)     # 5-10 for 2D, a little more for 3D?
+N = 100
+K = 20
 K2 = 2*K   # 2K seems to work for me.
 
 #   Visualization Tools
@@ -393,7 +396,8 @@ def main():
     # Create the figuree
     ax = Visual.StartFigure(outside_walls, obstacles)
     Visual.FlushFigure()
-    input("Test")
+    # input("Test")
+    time.sleep(1)
 
     # Create the start/goal nodes.
     startnode = Node(startx, starty, startz)
@@ -432,7 +436,8 @@ def main():
     for i in range(len(waypoints)-1):
         Visual.DrawLocalWaypointPath(ax, waypoints[i], waypoints[i+1], 'b-', linewidth=0.8)
     Visual.ShowFigure()
-    input("Hit return to continue")
+    # input("Hit return to continue")
+    time.sleep(1)
 
     x_sample = [x[0] for x in waypoints]
     y_sample = [x[1] for x in waypoints]
@@ -446,7 +451,8 @@ def main():
 
     ax.scatter3D(x_fine, y_fine, z_fine, 'g', linewidth=0.5)
     plt.show()
-    input("Hit return to continue")
+    # input("Hit return to continue")
+    time.sleep(1)
 
     data = []
     length = len(x_fine)
@@ -459,11 +465,14 @@ def main():
 
     print(len(x_fine))
     print('{',end='')
-    for i in range(len(x_fine)): 
+    # for i in range(len(x_fine)): 
+    for i in range(10): 
         print('{',end='')
-        print("{},{},{}".format(x_fine[i], z_fine[i], y_fine[i]),end='')
+        print("{},{},{}".format(x_fine[i], y_fine[i], z_fine[i]),end='')
         print('},')
-    input("Hit return to continue")
+    # input("Hit return to continue")
+    time.sleep(1)
+    return 0
 
 
 if __name__== "__main__":
