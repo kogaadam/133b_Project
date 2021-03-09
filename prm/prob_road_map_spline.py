@@ -26,7 +26,7 @@ import time
 
 # N  = int(args.N)  # Perhaps as low as 20?  I'd probably cap at 2000?
 # K  = int(args.K)     # 5-10 for 2D, a little more for 3D?
-N = 100
+N = 500
 K = 20
 K2 = 2*K   # 2K seems to work for me.
 
@@ -67,9 +67,9 @@ class Visual():
         ((xmin, xmax), (ymin, ymax), (zmin, zmax)) = outside_walls
         Visual.PlotFourWalls(ax, xmin, xmax, ymin, ymax, zmin, zmax, alpha=0.5, color="blue")
 
-        plt.xlim(xmin, xmax)
-        plt.ylim(ymin, ymax)
-        ax.set_zlim(zmin, max(xmax,ymax,zmax))
+        plt.xlim(-4, 4)
+        plt.ylim(-4, 4)
+        ax.set_zlim(0, 4)
 
         for obs in obstacles: 
             ((xmin, xmax), (ymin, ymax), (zmin, zmax)) = (obs.xlim, obs.ylim, obs.zlim)
@@ -81,6 +81,7 @@ class Visual():
 
             ax.plot_surface(x, y, z, alpha=0.9, color="green")
 
+        ax.view_init(azim=-90, elev=90)
         return ax 
 
     def FlushFigure():
@@ -125,7 +126,7 @@ class State:
     # Check whether in free space.
     def InFreespace(self):
         for obs in obstacles: 
-            if obs.InObstacle(0.5, (self.x,self.y,self.z)):
+            if obs.InObstacle(0.3, (self.x,self.y,self.z)):
                 return False
 
         return True
@@ -370,24 +371,39 @@ def write_to_file(data):
 #   General World Definitions
 #
 #   List of objects, start, and goal
-
-outside_walls = ((-2, 2), (-2, 2), (0, 0.5))
+outside_walls = ((-2, 2), (-4, 4), (0, 2))
 
 (xmin, xmax) = (-1.6, 1.6)
-(ymin, ymax) = (-1.6, 1.6)
-(zmin, zmax) = (0, 1)
+(ymin, ymax) = (-3.6, 3.6)
+(zmin, zmax) = (0, 2)
 
-(startx, starty, startz) = (-1.5, -1.5, 0.075)
-(goalx,  goaly, goalz)  = (1.25, 1.25, 0.5)
+(startx, starty, startz) = (0, -3.5, 0.075)
+(goalx,  goaly, goalz)  = (0, 3.5, 0.5)
 
-obstacles = []
-#obs1 = Obstacle((-0.5, 0.0), (-0.5, 0.0), (0, 0.5))
-#obs2 = Obstacle((-1.5, 0.5), (0.5, 1.0), (0, 0.75))
-#obs3 = Obstacle((0.5, 1.0), (-0.5, -1.0), (0, 2))
-obs1 = Obstacle((-0.5, 2.0), (-0.5, -1.0), (0, 0.75))
-obs2 = Obstacle((-2.0, 0.5), (0.5, 1.0), (0, 0.75))
-obstacles.append(obs1)
-obstacles.append(obs2)
+## --------------------- THREE TALL WALL ENV --------------------- ##
+# obs1 = Obstacle((-1, 2.0), (-2.5, -2.0), (0, 2))
+# obs2 = Obstacle((-2, 1), (-0.25, 0.25), (0, 2))
+# obs3 = Obstacle((-1, 2.0), (2.0, 2.5), (0, 2))
+
+# obstacles = [obs1, obs2, obs3]
+
+## --------------------- FOUR SHORT WALL ENV --------------------- ##
+# obs1 = Obstacle((-1, 2.0), (-2.5, -2.0), (0, 2))
+# obs2 = Obstacle((-2, 1), (-1, -0.5), (0, 0.5))
+# obs3 = Obstacle((-1, 2.0), (0.5, 1), (0, 1))
+# obs4 = Obstacle((-2, 1), (2.0, 2.5), (0, 2))
+
+# obstacles = [obs1, obs2, obs3, obs4]
+
+## --------------------- FOUR SHORT WALL ENV --------------------- ##
+obs1 = Obstacle((-2, 2), (1.75, 2.25), (0, 1))
+obs2 = Obstacle((-2, 2), (-2.25, -1.75), (1, 2))
+obs3 = Obstacle((-2, 2), (-0.25, 0.25), (1.5, 2.0))
+obs4 = Obstacle((-2, 2), (-0.25, 0.25), (0, 0.5))
+obs5 = Obstacle((1.5, 2.0), (-0.25, 0.25), (0.5, 1.5))
+obs6 = Obstacle((-2.0, -1.5), (-0.25, 0.25), (0.5, 1.5))
+
+obstacles = [obs1, obs2, obs3, obs4, obs5, obs6]
 
 #
 #  Main Code
@@ -436,15 +452,15 @@ def main():
     for i in range(len(waypoints)-1):
         Visual.DrawLocalWaypointPath(ax, waypoints[i], waypoints[i+1], 'b-', linewidth=0.8)
     Visual.ShowFigure()
-    # input("Hit return to continue")
-    time.sleep(1)
+    input("Hit return to continue")
+    #time.sleep(1)
 
     x_sample = [x[0] for x in waypoints]
     y_sample = [x[1] for x in waypoints]
     z_sample = [x[2] for x in waypoints]
     print("SAMPLE")
 
-    tck, u = interpolate.splprep([x_sample,y_sample,z_sample], s=2)
+    tck, u = interpolate.splprep([x_sample,y_sample,z_sample], s=3)
     x_knots, y_knots, z_knots = interpolate.splev(tck[0], tck)
     u_fine = np.linspace(0,1,1000)
     x_fine, y_fine, z_fine = interpolate.splev(u_fine, tck)
@@ -465,10 +481,10 @@ def main():
 
     print(len(x_fine))
     print('{',end='')
-    # for i in range(len(x_fine)): 
-    for i in range(10): 
+    #for i in range(len(x_fine)): 
+    for i in range(10):
         print('{',end='')
-        print("{},{},{}".format(x_fine[i], y_fine[i], z_fine[i]),end='')
+        print("{},{},{}".format(x_fine[i], z_fine[i], -y_fine[i]),end='')
         print('},')
     # input("Hit return to continue")
     time.sleep(1)

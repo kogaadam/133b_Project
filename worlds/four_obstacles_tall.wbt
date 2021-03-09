@@ -11,8 +11,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation 0.6626183476732966 -0.6856399623385169 -0.30138806773186533 5.1117290760613106
-  position 7.093992368196918 15.807401669205216 8.190073330168058
+  orientation 0.9995401414863803 0.02431501817311621 0.01811864919434994 5.001948193456553
+  position -0.7968937625855798 14.122165732879479 3.843521730410742
   follow "Mavic 2 PRO:camera yaw:camera pitch:camera roll:camera"
   followType "None"
 }
@@ -33,8 +33,8 @@ RectangleArena {
   }
 }
 WoodenBox {
-  translation -0.75 1 0.75
-  rotation 0 0 1 4.692820414042842e-06
+  translation -0.75 1 0
+  rotation 0 0 1 0
   size 2.5 2 0.5
 }
 WoodenBox {
@@ -43,20 +43,12 @@ WoodenBox {
   size 2.5 2 0.5
 }
 WoodenBox {
-  translation 0.75 1 -0.75
-  name "wooden box(1)"
-  size 2.5 2 0.5
-}
-WoodenBox {
-  translation -0.75 1 -2.25
+  translation 0.75 1 -2.25
   name "wooden box(3)"
   size 2.5 2 0.5
 }
 Mavic2Pro {
-  hidden position_0_0 2.4586303562620413e-09
-  hidden position_6_0 -2.439544353695605e-11
-  hidden position_7_0 -1.2536760719558709e-11
-  translation 0.3146071038272808 0.01681528385825591 3.1304395561080764
-  rotation -0.9984434989843685 -0.040775271270880216 0.03805202476396641 -1.5380620817177437
-  controller "test_flight"
+  translation 1.5 0.075 3.2
+  rotation 0 -0.7071066717798297 -0.7071068905932484 -3.14
+  controller "test_flight_macos"
 }

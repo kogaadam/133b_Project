@@ -52,7 +52,7 @@ struct datapoints {
 int main(int argc, char **argv) {
 
   // run executable
-  int r = system("C:\\School\\_SR\\_WI\\133b\\133b_Project\\prm\\t.exe \
+  int r = system("~/veys/Desktop/133b_Project/prm/t.exe \
                   prob_road_map_spline main");
   printf("return: %d\n", r);
 
@@ -157,7 +157,7 @@ int main(int argc, char **argv) {
     printf("Altitude Error: %f | X Error: %f | Z Error: %f | Node Index: %d\n", alt_error, x_error, z_error, node_index);
     
     // Checks to see if positions are within target threshold then updates to next node.
-    if (node_index < 3 && fabs(target_altitude - altitude)<thresh && fabs(target_x - x_pos)<thresh && fabs(target_z - z_pos)<thresh) {
+    if (node_index < 999 && fabs(target_altitude - altitude)<thresh && fabs(target_x - x_pos)<thresh && fabs(target_z - z_pos)<thresh) {
       node_index++;
       target_altitude = nodes[node_index][1];
       target_x = nodes[node_index][0];
