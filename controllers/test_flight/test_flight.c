@@ -52,7 +52,7 @@ struct datapoints {
 int main(int argc, char **argv) {
 
   // run executable
-  int r = system("~/veys/Desktop/133b_Project/prm/t.exe \
+  int r = system("C:\\School\\_SR\\_WI\\133b\\133b_Project\\prm\\t.exe \
                   prob_road_map_spline main");
   printf("return: %d\n", r);
 
