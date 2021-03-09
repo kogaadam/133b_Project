@@ -38,12 +38,38 @@ ELSE:
 */
 #define CLAMP(value, low, high) ((value) < (low) ? (low) : ((value) > (high) ? (high) : (value)))
 
+
+struct datapoints {
+  double dp1, dp2, dp3;
+};
+
 /*
  * This is the main program.
  * The arguments of the main function can be specified by the
  * "controllerArgs" field of the Robot node
  */
 int main(int argc, char **argv) {
+
+  // run executable
+  int r = system("C:\\School\\_SR\\_WI\\133b\\133b_Project\\prm\\t.exe ptest write_to_file 6 7");
+  printf("return: %d", r);
+
+  // read from file
+  FILE *fptr;
+  const int data_len = 100;
+  struct datapoints dps;
+
+  if ((fptr = fopen("C:\\School\\_SR\\_WI\\133b\\133b_Project\\prm\\path.bin", "rb")) == NULL) {
+    printf("Error opening file");
+    exit(1);
+  }
+
+  for(int i = 0; i < data_len; i++) {
+    fread(&dps, sizeof(struct datapoints), 1, fptr);
+    printf("[%f, %f, %f]", dps.dp1, dps.dp2, dps.dp3);
+  }
+  fclose(fptr);
+
   /* necessary to initialize webots stuff */
   wb_robot_init();
   int timestep = (int)wb_robot_get_basic_time_step();
