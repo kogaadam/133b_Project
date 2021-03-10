@@ -81,7 +81,7 @@ class Visual():
 
             ax.plot_surface(x, y, z, alpha=0.9, color="green")
 
-        ax.view_init(azim=-90, elev=90)
+        ax.view_init(azim=-30, elev=60)
         return ax 
 
     def FlushFigure():
@@ -373,12 +373,12 @@ def write_to_file(data):
 #   List of objects, start, and goal
 outside_walls = ((-2, 2), (-4, 4), (0, 2))
 
-(xmin, xmax) = (-1.6, 1.6)
-(ymin, ymax) = (-3.6, 3.6)
+(xmin, xmax) = (-1.7, 1.7)
+(ymin, ymax) = (-3.7, 3.7)
 (zmin, zmax) = (0, 2)
 
 (startx, starty, startz) = (0, -3.5, 0.075)
-(goalx,  goaly, goalz)  = (0, 3.5, 0.5)
+(goalx,  goaly, goalz)  = (0, 3.5, 1.5)
 
 ## --------------------- THREE TALL WALL ENV --------------------- ##
 # obs1 = Obstacle((-1, 2.0), (-2.5, -2.0), (0, 2))
@@ -400,8 +400,8 @@ obs1 = Obstacle((-2, 2), (1.75, 2.25), (0, 1))
 obs2 = Obstacle((-2, 2), (-2.25, -1.75), (1, 2))
 obs3 = Obstacle((-2, 2), (-0.25, 0.25), (1.5, 2.0))
 obs4 = Obstacle((-2, 2), (-0.25, 0.25), (0, 0.5))
-obs5 = Obstacle((1.5, 2.0), (-0.25, 0.25), (0.5, 1.5))
-obs6 = Obstacle((-2.0, -1.5), (-0.25, 0.25), (0.5, 1.5))
+obs5 = Obstacle((0.5, 2.0), (-0.25, 0.25), (0.5, 1.5))
+obs6 = Obstacle((-2.0, -0.5), (-0.25, 0.25), (0.5, 1.5))
 
 obstacles = [obs1, obs2, obs3, obs4, obs5, obs6]
 
@@ -479,16 +479,17 @@ def main():
 
     write_to_file(data)
 
+    f = open("env4.txt", "w")
     print(len(x_fine))
-    print('{',end='')
-    #for i in range(len(x_fine)): 
-    for i in range(10):
-        print('{',end='')
-        print("{},{},{}".format(x_fine[i], z_fine[i], -y_fine[i]),end='')
-        print('},')
+    f.write('{')
+    for i in range(len(x_fine)): 
+        f.write('{')
+        f.write("{},{},{}".format(x_fine[i], z_fine[i], -y_fine[i]))
+        f.write('},\n')
+    f.close()
     # input("Hit return to continue")
-    time.sleep(1)
-    return 0
+    #time.sleep(1)
+    #return 0
 
 
 if __name__== "__main__":
