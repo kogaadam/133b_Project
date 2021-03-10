@@ -75,8 +75,7 @@ int main(int argc, char **argv) {
     fread(&dps, sizeof(struct datapoints), 1, fptr);
     nodes[i][0] = dps.dp1;
     nodes[i][1] = dps.dp3;
-    nodes[i][2] = dps.dp2;
-    // printf("[%f, %f, %f]\n", dps.dp1, dps.dp2, dps.dp3);
+    nodes[i][2] = -dps.dp2;
   }
   fclose(fptr);
 
@@ -130,7 +129,7 @@ int main(int argc, char **argv) {
   double target_altitude = nodes[0][1];  // The target altitude
   double target_x = nodes[0][0];
   double target_z = nodes[0][2];
-  double target_yaw = 0.0;
+  double target_yaw = 1.5;
   // IF target-current < threshold:
   //    array index ++
 
@@ -154,8 +153,7 @@ int main(int argc, char **argv) {
     double z_error = fabs(target_z - z_pos);
     
     //printf("Altitude: %f | X: %f | Z: %f\n", altitude, x_pos, z_pos);
-    printf("Altitude Error: %f | X Error: %f | Z Error: %f | Node Index: %d\n", alt_error, x_error, z_error, node_index);
-    
+    // printf("Altitude Error: %f | X Error: %f | Z Error: %f | Node Index: %d\n", alt_error, x_error, z_error, node_index);
     // Checks to see if positions are within target threshold then updates to next node.
     if (node_index < 999 && fabs(target_altitude - altitude)<thresh && fabs(target_x - x_pos)<thresh && fabs(target_z - z_pos)<thresh) {
       node_index++;
@@ -181,6 +179,10 @@ int main(int argc, char **argv) {
     const double fr_rt_mot_inp = k_vert_thrust + vert_change + roll_change - pitch_change;
     const double bk_lt_mot_inp = k_vert_thrust + vert_change - roll_change + pitch_change;
     const double bk_rt_mot_inp = k_vert_thrust + vert_change + roll_change + pitch_change;
+    // const double fr_lt_mot_inp = k_vert_thrust + vert_change - roll_change - pitch_change + yaw_change;
+    // const double fr_rt_mot_inp = k_vert_thrust + vert_change + roll_change - pitch_change - yaw_change;
+    // const double bk_lt_mot_inp = k_vert_thrust + vert_change - roll_change + pitch_change - yaw_change;
+    // const double bk_rt_mot_inp = k_vert_thrust + vert_change + roll_change + pitch_change + yaw_change;
 
     // Set new motor velocities
     wb_motor_set_velocity(fr_lt_mot, fr_lt_mot_inp);

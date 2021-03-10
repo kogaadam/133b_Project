@@ -395,7 +395,7 @@ outside_walls = ((-2, 2), (-4, 4), (0, 2))
 
 # obstacles = [obs1, obs2, obs3, obs4]
 
-## --------------------- FOUR SHORT WALL ENV --------------------- ##
+## --------------------- HOLE ENV --------------------- ##
 obs1 = Obstacle((-2, 2), (1.75, 2.25), (0, 1))
 obs2 = Obstacle((-2, 2), (-2.25, -1.75), (1, 2))
 obs3 = Obstacle((-2, 2), (-0.25, 0.25), (1.5, 2.0))
@@ -452,8 +452,8 @@ def main():
     for i in range(len(waypoints)-1):
         Visual.DrawLocalWaypointPath(ax, waypoints[i], waypoints[i+1], 'b-', linewidth=0.8)
     Visual.ShowFigure()
-    input("Hit return to continue")
-    #time.sleep(1)
+    # input("Hit return to continue")
+    time.sleep(1)
 
     x_sample = [x[0] for x in waypoints]
     y_sample = [x[1] for x in waypoints]
@@ -488,8 +488,8 @@ def main():
         f.write('},\n')
     f.close()
     # input("Hit return to continue")
-    #time.sleep(1)
-    #return 0
+    time.sleep(1)
+    return 0
 
 
 if __name__== "__main__":

@@ -102,5 +102,5 @@ WoodenBox {
 Mavic2Pro {
   translation -0.003989 0.0785 3.50124
   rotation 0 0.704876843420887 0.7093297086750324 3.1415
-  controller "test_flight_macos"
+  controller "test_flight"
 }
